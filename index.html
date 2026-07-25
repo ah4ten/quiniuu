@@ -8,6 +8,30 @@
     />
     <title>Sổ Tay Từ Vựng Tiếng Hàn</title>
   </head>
+  <!-- MÀN HÌNH ĐĂNG NHẬP -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <h2>🔐 Nhập mật khẩu</h2>
+      <input
+        type="password"
+        id="passwordInput"
+        placeholder="Mật khẩu của bạn là gì?"
+      />
+      <button
+        id="btnLogin"
+        class="primary-btn"
+        style="width: 100%; margin-top: 16px"
+      >
+        Mở Khóa Sổ Tay
+      </button>
+      <p
+        id="loginError"
+        style="color: #ef4444; margin-top: 8px; font-size: 14px; display: none"
+      >
+        Mật khẩu không đúng. Thử lại nhé!
+      </p>
+    </div>
+  </div>
   <body>
     <div class="overlay" id="mobileOverlay"></div>
 

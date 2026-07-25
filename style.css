@@ -388,3 +388,38 @@ button.primary-btn {
     grid-template-columns: 1fr;
   }
 }
+/* ==================== 
+   MÀN HÌNH ĐĂNG NHẬP 
+   ==================== */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--bg-color);
+  z-index: 9999; /* Đặt số cực cao để che toàn bộ trang web */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  background-color: var(--card-bg);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+.login-box input {
+  margin-bottom: 8px;
+  text-align: center; /* Căn giữa chữ lúc nhập mật khẩu */
+}

@@ -12,6 +12,41 @@ import {
 } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 
+// ==========================================
+// TÍNH NĂNG MẬT KHẨU
+// ==========================================
+const MY_PASSWORD = '11122003'; // <--- BẠN ĐỔI MẬT KHẨU CỦA BẠN Ở ĐÂY
+
+const loginOverlay = document.getElementById('loginOverlay');
+const passwordInput = document.getElementById('passwordInput');
+const btnLogin = document.getElementById('btnLogin');
+const loginError = document.getElementById('loginError');
+
+// 1. Kiểm tra xem máy này đã từng đăng nhập đúng chưa
+if (localStorage.getItem('isUnlocked') === 'true') {
+  loginOverlay.style.display = 'none'; // Nếu đúng rồi thì giấu màn hình login đi
+} else {
+  loginOverlay.style.display = 'flex'; // Nếu chưa thì hiện lên bắt nhập
+}
+
+// 2. Xử lý khi bấm nút Đăng nhập
+btnLogin.addEventListener('click', () => {
+  if (passwordInput.value === MY_PASSWORD) {
+    localStorage.setItem('isUnlocked', 'true'); // Lưu vào bộ nhớ trình duyệt
+    loginOverlay.style.display = 'none'; // Mở khóa
+  } else {
+    loginError.style.display = 'block'; // Báo lỗi
+  }
+});
+
+// 3. Hỗ trợ bấm phím Enter cho nhanh
+passwordInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    btnLogin.click();
+  }
+});
+// ==========================================
+
 let currentTopic = 'General';
 let topicsArray = ['General'];
 let allWords = [];
