@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Sổ Tay Từ Vựng Tiếng Hàn</title>
+  </head>
+  <body>
+    <div class="overlay" id="mobileOverlay" onclick="window.toggleMenu()"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">🇰🇷 Vocab Note</div>
+      <div class="input-group" style="margin-bottom: 16px">
+        <input
+          type="text"
+          id="newTopicInput"
+          placeholder="Thêm chủ đề mới..."
+        />
+        <button
+          class="primary-btn"
+          onclick="window.addTopic()"
+          style="margin-top: 8px; width: 100%"
+        >
+          + Thêm
+        </button>
+      </div>
+
+      <ul class="topic-list" id="topicList"></ul>
+
+      <div class="sidebar-tools">
+        <input
+          type="file"
+          id="excelInput"
+          accept=".xlsx, .xls"
+          style="display: none"
+          onchange="window.importExcel(event)"
+        />
+        <button
+          class="tool-btn"
+          onclick="document.getElementById('excelInput').click()"
+        >
+          📥 Nhập Excel
+        </button>
+        <button class="tool-btn" onclick="window.exportExcel()">
+          📤 Xuất Excel
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="header-actions">
+        <button class="menu-toggle" onclick="window.toggleMenu()">☰</button>
+        <h1 id="currentTopicTitle">Đang tải dữ liệu...</h1>
+      </div>
+
+      <div class="add-word-form">
+        <div class="input-group">
+          <label>Từ tiếng Hàn</label>
+          <input type="text" id="wordInput" placeholder="VD: 학교" />
+        </div>
+        <div class="input-group">
+          <label>Loại từ</label>
+          <select id="typeInput">
+            <option value="Danh từ">Danh từ</option>
+            <option value="Động từ">Động từ</option>
+            <option value="Tính từ">Tính từ</option>
+            <option value="Phó từ">Phó từ</option>
+            <option value="Trợ từ">Trợ từ</option>
+            <option value="Cụm từ">Cụm từ</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Nghĩa tiếng Việt</label>
+          <input type="text" id="meaningInput" placeholder="VD: Trường học" />
+        </div>
+        <button class="primary-btn" onclick="window.addWord()">
+          Lưu Từ Vựng
+        </button>
+      </div>
+
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
