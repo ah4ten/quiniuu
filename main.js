@@ -16,10 +16,32 @@ let currentTopic = 'General';
 let topicsArray = ['General'];
 let allWords = [];
 
-window.toggleMenu = () => {
-  document.getElementById('sidebar').classList.toggle('active');
-  document.getElementById('mobileOverlay').classList.toggle('active');
-};
+// Lấy các phần tử tĩnh từ HTML
+const sidebar = document.getElementById('sidebar');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const topicList = document.getElementById('topicList');
+const vocabGrid = document.getElementById('vocabGrid');
+
+// Gắn sự kiện cho các nút tĩnh
+document.getElementById('btnToggleMenu').addEventListener('click', toggleMenu);
+mobileOverlay.addEventListener('click', toggleMenu);
+document.getElementById('btnAddTopic').addEventListener('click', addTopic);
+document.getElementById('btnAddWord').addEventListener('click', addWord);
+document
+  .getElementById('btnExportExcel')
+  .addEventListener('click', exportExcel);
+
+const excelInput = document.getElementById('excelInput');
+document
+  .getElementById('btnImportExcel')
+  .addEventListener('click', () => excelInput.click());
+excelInput.addEventListener('change', importExcel);
+
+// Các hàm xử lý
+function toggleMenu() {
+  sidebar.classList.toggle('active');
+  mobileOverlay.classList.toggle('active');
+}
 
 const q = query(collection(db, 'vocabularies'), orderBy('createdAt', 'asc'));
 onSnapshot(q, (snapshot) => {
@@ -42,13 +64,14 @@ onSnapshot(q, (snapshot) => {
 });
 
 function renderTopics() {
-  const topicList = document.getElementById('topicList');
   topicList.innerHTML = '';
 
   topicsArray.forEach((topic) => {
     const li = document.createElement('li');
     li.className = `topic-item ${topic === currentTopic ? 'active' : ''}`;
-    li.onclick = () => window.switchTopic(topic);
+
+    // Click vào tên chủ đề để chuyển đổi
+    li.addEventListener('click', () => switchTopic(topic));
 
     const span = document.createElement('span');
     span.innerText = topic;
@@ -58,7 +81,9 @@ function renderTopics() {
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'delete-topic-btn';
       deleteBtn.innerHTML = '✕';
-      deleteBtn.onclick = (e) => window.deleteTopic(topic, e);
+
+      // Click vào dấu X để xóa chủ đề
+      deleteBtn.addEventListener('click', (e) => deleteTopic(topic, e));
       li.appendChild(deleteBtn);
     }
 
@@ -68,27 +93,27 @@ function renderTopics() {
     `Chủ đề: ${currentTopic}`;
 }
 
-window.switchTopic = (topic) => {
+function switchTopic(topic) {
   currentTopic = topic;
   renderTopics();
   renderVocab();
   if (window.innerWidth <= 768) {
-    document.getElementById('sidebar').classList.remove('active');
-    document.getElementById('mobileOverlay').classList.remove('active');
+    sidebar.classList.remove('active');
+    mobileOverlay.classList.remove('active');
   }
-};
+}
 
-window.addTopic = () => {
+function addTopic() {
   const input = document.getElementById('newTopicInput');
   const newTopic = input.value.trim();
   if (newTopic && !topicsArray.includes(newTopic)) {
     topicsArray.push(newTopic);
     input.value = '';
-    window.switchTopic(newTopic);
+    switchTopic(newTopic);
   }
-};
+}
 
-window.deleteTopic = async (topicToDelete, event) => {
+async function deleteTopic(topicToDelete, event) {
   event.stopPropagation();
   if (topicToDelete === 'General') {
     alert('Bạn không thể xóa chủ đề mặc định!');
@@ -103,7 +128,7 @@ window.deleteTopic = async (topicToDelete, event) => {
       }
       topicsArray = topicsArray.filter((t) => t !== topicToDelete);
       if (currentTopic === topicToDelete) {
-        window.switchTopic('General');
+        switchTopic('General');
       } else {
         renderTopics();
       }
@@ -111,12 +136,16 @@ window.deleteTopic = async (topicToDelete, event) => {
       console.error('Lỗi xóa chủ đề: ', error);
     }
   }
-};
+}
 
-window.addWord = async () => {
-  const word = document.getElementById('wordInput').value.trim();
-  const type = document.getElementById('typeInput').value;
-  const meaning = document.getElementById('meaningInput').value.trim();
+async function addWord() {
+  const wordInput = document.getElementById('wordInput');
+  const typeInput = document.getElementById('typeInput');
+  const meaningInput = document.getElementById('meaningInput');
+
+  const word = wordInput.value.trim();
+  const type = typeInput.value;
+  const meaning = meaningInput.value.trim();
 
   if (!word || !meaning) {
     alert('Vui lòng nhập Từ tiếng Hàn và Nghĩa tiếng Việt!');
@@ -131,15 +160,16 @@ window.addWord = async () => {
       topic: currentTopic,
       createdAt: serverTimestamp()
     });
-    document.getElementById('wordInput').value = '';
-    document.getElementById('typeInput').value = 'Danh từ'; // Trả về mặc định là Danh từ
-    document.getElementById('meaningInput').value = '';
+
+    wordInput.value = '';
+    typeInput.value = 'Danh từ';
+    meaningInput.value = '';
   } catch (error) {
     console.error('Lỗi thêm từ vựng: ', error);
   }
-};
+}
 
-window.deleteWord = async (docId) => {
+async function deleteWord(docId) {
   if (confirm('Bạn có chắc chắn muốn xóa từ này?')) {
     try {
       await deleteDoc(doc(db, 'vocabularies', docId));
@@ -147,15 +177,14 @@ window.deleteWord = async (docId) => {
       console.error('Lỗi xóa từ vựng: ', error);
     }
   }
-};
+}
 
 function renderVocab() {
-  const grid = document.getElementById('vocabGrid');
-  grid.innerHTML = '';
+  vocabGrid.innerHTML = '';
   const currentWords = allWords.filter((item) => item.topic === currentTopic);
 
   if (currentWords.length === 0) {
-    grid.innerHTML =
+    vocabGrid.innerHTML =
       '<p style="color: var(--text-muted); grid-column: 1 / -1;">Chưa có từ vựng nào trong chủ đề này.</p>';
     return;
   }
@@ -165,8 +194,9 @@ function renderVocab() {
     const stt = currentWords.length - index;
     const card = document.createElement('div');
     card.className = 'vocab-card';
+
     card.innerHTML = `
-            <button class="delete-btn" onclick="window.deleteWord('${item.id}')">✕</button>
+            <button class="delete-btn">✕</button>
             <div class="word-kr">
                 <span class="word-stt">#${stt}</span> 
                 ${item.word}
@@ -174,11 +204,16 @@ function renderVocab() {
             <div class="word-type">(${item.type})</div>
             <div class="word-vi">${item.meaning}</div>
         `;
-    grid.appendChild(card);
+
+    // Gắn sự kiện xóa từ vựng
+    const delBtn = card.querySelector('.delete-btn');
+    delBtn.addEventListener('click', () => deleteWord(item.id));
+
+    vocabGrid.appendChild(card);
   });
 }
 
-window.exportExcel = () => {
+function exportExcel() {
   if (allWords.length === 0) {
     alert('Bạn chưa có từ vựng nào để xuất Excel!');
     return;
@@ -194,9 +229,9 @@ window.exportExcel = () => {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'TuVung');
   XLSX.writeFile(wb, 'DanhSachTuVungHq.xlsx');
-};
+}
 
-window.importExcel = (event) => {
+function importExcel(event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -237,4 +272,4 @@ window.importExcel = (event) => {
     }
   };
   reader.readAsArrayBuffer(file);
-};
+}

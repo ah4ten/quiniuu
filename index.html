@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="vi">
-  <link rel="stylesheet" href="./style.css" />
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -10,7 +9,7 @@
     <title>Sổ Tay Từ Vựng Tiếng Hàn</title>
   </head>
   <body>
-    <div class="overlay" id="mobileOverlay" onclick="window.toggleMenu()"></div>
+    <div class="overlay" id="mobileOverlay"></div>
 
     <aside class="sidebar" id="sidebar">
       <div class="logo">🇰🇷 Vocab Note</div>
@@ -22,7 +21,7 @@
         />
         <button
           class="primary-btn"
-          onclick="window.addTopic()"
+          id="btnAddTopic"
           style="margin-top: 8px; width: 100%"
         >
           + Thêm
@@ -37,23 +36,15 @@
           id="excelInput"
           accept=".xlsx, .xls"
           style="display: none"
-          onchange="window.importExcel(event)"
         />
-        <button
-          class="tool-btn"
-          onclick="document.getElementById('excelInput').click()"
-        >
-          📥 Nhập Excel
-        </button>
-        <button class="tool-btn" onclick="window.exportExcel()">
-          📤 Xuất Excel
-        </button>
+        <button class="tool-btn" id="btnImportExcel">📥 Nhập Excel</button>
+        <button class="tool-btn" id="btnExportExcel">📤 Xuất Excel</button>
       </div>
     </aside>
 
     <main class="main-content">
       <div class="header-actions">
-        <button class="menu-toggle" onclick="window.toggleMenu()">☰</button>
+        <button class="menu-toggle" id="btnToggleMenu">☰</button>
         <h1 id="currentTopicTitle">Đang tải dữ liệu...</h1>
       </div>
 
@@ -77,9 +68,7 @@
           <label>Nghĩa tiếng Việt</label>
           <input type="text" id="meaningInput" placeholder="VD: Trường học" />
         </div>
-        <button class="primary-btn" onclick="window.addWord()">
-          Lưu Từ Vựng
-        </button>
+        <button class="primary-btn" id="btnAddWord">Lưu Từ Vựng</button>
       </div>
 
       <div class="vocab-grid" id="vocabGrid"></div>
