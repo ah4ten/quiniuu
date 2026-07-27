@@ -44,8 +44,8 @@ passwordInput.addEventListener('keypress', (e) => {
 // ==========================================
 // LOGIC SỔ TAY TỪ VỰNG
 // ==========================================
-let currentTopic = 'General';
-let topicsArray = ['General'];
+let currentTopic = ''; // Bỏ mặc định General
+let topicsArray = [];
 let allWords = [];
 
 const sidebar = document.getElementById('sidebar');
@@ -76,7 +76,7 @@ function toggleMenu() {
 const q = query(collection(db, 'vocabularies'), orderBy('createdAt', 'asc'));
 onSnapshot(q, (snapshot) => {
   allWords = [];
-  let tempTopics = new Set(['General']);
+  let tempTopics = new Set(); // Mảng trắng hoàn toàn
 
   snapshot.forEach((doc) => {
     const wordData = { id: doc.id, ...doc.data() };
@@ -84,11 +84,17 @@ onSnapshot(q, (snapshot) => {
     if (wordData.topic) tempTopics.add(wordData.topic);
   });
 
-  if (!tempTopics.has(currentTopic)) {
-    tempTopics.add(currentTopic);
+  // Giữ lại các chủ đề vừa tạo tay (chưa có từ vựng)
+  topicsArray.forEach((t) => tempTopics.add(t));
+  topicsArray = Array.from(tempTopics);
+
+  // Xử lý tự động chọn chủ đề
+  if (topicsArray.length === 0) {
+    currentTopic = '';
+  } else if (!currentTopic || !topicsArray.includes(currentTopic)) {
+    currentTopic = topicsArray[0]; // Tự động nhảy về chủ đề đầu tiên
   }
 
-  topicsArray = Array.from(tempTopics);
   renderTopics();
   renderVocab();
 });
@@ -104,22 +110,29 @@ function renderTopics() {
     span.innerText = topic;
     li.appendChild(span);
 
-    if (topic !== 'General') {
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete-topic-btn';
-      deleteBtn.innerHTML = '✕';
-      deleteBtn.addEventListener('click', (e) => deleteTopic(topic, e));
-      li.appendChild(deleteBtn);
-    }
+    // Gắn nút X cho TẤT CẢ các chủ đề
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-topic-btn';
+    deleteBtn.innerHTML = '✕';
+    deleteBtn.addEventListener('click', (e) => deleteTopic(topic, e));
+    li.appendChild(deleteBtn);
+
     topicList.appendChild(li);
   });
-  document.getElementById('currentTopicTitle').innerText =
-    `Chủ đề: ${currentTopic}`;
+
+  // Cập nhật tiêu đề hiển thị
+  const titleDisplay = document.getElementById('currentTopicTitle');
+  if (currentTopic) {
+    titleDisplay.innerText = `Chủ đề: ${currentTopic}`;
+  } else {
+    titleDisplay.innerText = `Chưa có chủ đề nào`;
+  }
 }
 
 function switchTopic(topic) {
+  if (!topic) return;
   currentTopic = topic;
-  endTest(); // Đổi chủ đề thì tự động tắt bài kiểm tra
+  endTest();
   renderTopics();
   renderVocab();
   if (window.innerWidth <= 768) {
@@ -140,20 +153,22 @@ function addTopic() {
 
 async function deleteTopic(topicToDelete, event) {
   event.stopPropagation();
-  if (topicToDelete === 'General') {
-    alert('Bạn không thể xóa chủ đề mặc định!');
-    return;
-  }
   const confirmMsg = `Bạn có chắc chắn muốn xóa chủ đề "${topicToDelete}" không?\nToàn bộ từ vựng trong chủ đề này sẽ bị xóa vĩnh viễn.`;
+
   if (confirm(confirmMsg)) {
     try {
+      // Xóa tất cả từ vựng thuộc chủ đề này trên Firebase
       const wordsToDelete = allWords.filter((w) => w.topic === topicToDelete);
       for (const word of wordsToDelete) {
         await deleteDoc(doc(db, 'vocabularies', word.id));
       }
+
+      // Xóa khỏi danh sách tạm
       topicsArray = topicsArray.filter((t) => t !== topicToDelete);
+
       if (currentTopic === topicToDelete) {
-        switchTopic('General');
+        currentTopic = topicsArray.length > 0 ? topicsArray[0] : '';
+        switchTopic(currentTopic);
       } else {
         renderTopics();
       }
@@ -164,6 +179,13 @@ async function deleteTopic(topicToDelete, event) {
 }
 
 async function addWord() {
+  if (!currentTopic) {
+    alert(
+      'Vui lòng tạo một chủ đề (ở thanh menu bên trái) trước khi thêm từ vựng!'
+    );
+    return;
+  }
+
   const wordInput = document.getElementById('wordInput');
   const typeInput = document.getElementById('typeInput');
   const meaningInput = document.getElementById('meaningInput');
@@ -271,7 +293,8 @@ function importExcel(event) {
 
       let successCount = 0;
       for (const row of rows) {
-        const topic = row['Chủ đề'] || 'General';
+        // Tự sinh chủ đề nếu cột excel bị trống
+        const topic = row['Chủ đề'] || 'Từ Vựng Mới';
         const word = row['Từ vựng'];
         const type = row['Loại từ'] || 'Danh từ';
         const meaning = row['Nghĩa tiếng Việt'];
@@ -314,12 +337,10 @@ btnStartTest.addEventListener('click', startTest);
 btnSubmitAnswer.addEventListener('click', checkAnswer);
 btnEndTest.addEventListener('click', endTest);
 
-// Cho phép ấn Enter để check đáp án
 testAnswerInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') checkAnswer();
 });
 
-// Hàm xáo trộn mảng ngẫu nhiên
 function shuffleArray(array) {
   let curId = array.length;
   while (0 !== curId) {
@@ -333,25 +354,27 @@ function shuffleArray(array) {
 }
 
 function startTest() {
+  if (!currentTopic) {
+    alert('Vui lòng chọn một chủ đề có từ vựng để bắt đầu kiểm tra!');
+    return;
+  }
+
   const currentWords = allWords.filter((item) => item.topic === currentTopic);
   if (currentWords.length === 0) {
     alert('Chủ đề này chưa có từ vựng nào để kiểm tra!');
     return;
   }
 
-  // Thiết lập dữ liệu test
   testWords = shuffleArray([...currentWords]);
   currentTestIndex = 0;
   correctScore = 0;
 
-  // Ẩn giao diện học, Hiện giao diện Test
   addWordForm.style.display = 'none';
   vocabGrid.style.display = 'none';
   testScreen.style.display = 'flex';
   document.getElementById('testTopicName').innerText =
     `Kiểm tra: ${currentTopic}`;
 
-  // Đóng menu trên điện thoại
   if (window.innerWidth <= 768) {
     sidebar.classList.remove('active');
     mobileOverlay.classList.remove('active');
@@ -364,7 +387,6 @@ function renderTestWord() {
   const feedback = document.getElementById('testFeedback');
   feedback.innerText = '';
 
-  // Nếu đã làm hết câu hỏi
   if (currentTestIndex >= testWords.length) {
     document.getElementById('testQuestion').innerText = '🎉 Hoàn thành!';
     document.getElementById('testWordType').innerText = '';
@@ -377,7 +399,6 @@ function renderTestWord() {
     return;
   }
 
-  // Hiển thị câu hỏi hiện tại
   const currentWord = testWords[currentTestIndex];
   document.getElementById('testQuestion').innerText = currentWord.word;
   document.getElementById('testWordType').innerText = `(${currentWord.type})`;
@@ -386,7 +407,7 @@ function renderTestWord() {
 
   testAnswerInput.style.display = 'block';
   testAnswerInput.value = '';
-  testAnswerInput.focus(); // Tự động đưa con trỏ chuột vào ô nhập
+  testAnswerInput.focus();
 
   btnSubmitAnswer.style.display = 'block';
   btnSubmitAnswer.innerText = 'Kiểm tra';
@@ -398,14 +419,12 @@ function checkAnswer() {
   const feedback = document.getElementById('testFeedback');
   const currentWord = testWords[currentTestIndex];
 
-  // Trạng thái: Bấm để qua câu tiếp theo
   if (btnSubmitAnswer.innerText === 'Tiếp tục') {
     currentTestIndex++;
     renderTestWord();
     return;
   }
 
-  // Trạng thái: Chấm điểm
   const userAnswer = testAnswerInput.value.trim().toLowerCase();
   const correctAnswer = currentWord.meaning.trim().toLowerCase();
 
@@ -417,18 +436,17 @@ function checkAnswer() {
 
   if (userAnswer === correctAnswer) {
     feedback.innerText = '✅ Chính xác!';
-    feedback.style.color = '#10b981'; // Màu xanh
+    feedback.style.color = '#10b981';
     correctScore++;
   } else {
     feedback.innerText = `❌ Sai rồi! Đáp án đúng là: ${currentWord.meaning}`;
-    feedback.style.color = '#ef4444'; // Màu đỏ
+    feedback.style.color = '#ef4444';
   }
 
   btnSubmitAnswer.innerText = 'Tiếp tục';
 }
 
 function endTest() {
-  // Tắt Test, đưa giao diện về bình thường (Xóa style inline để ăn theo file CSS)
   testScreen.style.display = 'none';
   addWordForm.style.display = '';
   vocabGrid.style.display = '';
