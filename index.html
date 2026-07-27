@@ -8,31 +8,37 @@
     />
     <title>Sổ Tay Từ Vựng Tiếng Hàn</title>
   </head>
-  <!-- MÀN HÌNH ĐĂNG NHẬP -->
-  <div id="loginOverlay" class="login-overlay">
-    <div class="login-box">
-      <h2>🔐 Nhập mật khẩu</h2>
-      <input
-        type="password"
-        id="passwordInput"
-        placeholder="Mật khẩu của bạn là gì?"
-      />
-      <button
-        id="btnLogin"
-        class="primary-btn"
-        style="width: 100%; margin-top: 16px"
-      >
-        Mở Khóa Sổ Tay
-      </button>
-      <p
-        id="loginError"
-        style="color: #ef4444; margin-top: 8px; font-size: 14px; display: none"
-      >
-        Mật khẩu không đúng. Thử lại nhé!
-      </p>
-    </div>
-  </div>
   <body>
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="loginOverlay" class="login-overlay">
+      <div class="login-box">
+        <h2>🔐 Nhập mật khẩu</h2>
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Mật khẩu của bạn là gì?"
+        />
+        <button
+          id="btnLogin"
+          class="primary-btn"
+          style="width: 100%; margin-top: 16px"
+        >
+          Mở Khóa Sổ Tay
+        </button>
+        <p
+          id="loginError"
+          style="
+            color: #ef4444;
+            margin-top: 8px;
+            font-size: 14px;
+            display: none;
+          "
+        >
+          Mật khẩu không đúng. Thử lại nhé!
+        </p>
+      </div>
+    </div>
+
     <div class="overlay" id="mobileOverlay"></div>
 
     <aside class="sidebar" id="sidebar">
@@ -55,6 +61,19 @@
       <ul class="topic-list" id="topicList"></ul>
 
       <div class="sidebar-tools">
+        <button
+          class="tool-btn"
+          id="btnStartTest"
+          style="
+            background-color: var(--primary-hover);
+            color: white;
+            border: none;
+            margin-bottom: 12px;
+          "
+        >
+          📝 Bắt đầu kiểm tra
+        </button>
+
         <input
           type="file"
           id="excelInput"
@@ -72,7 +91,8 @@
         <h1 id="currentTopicTitle">Đang tải dữ liệu...</h1>
       </div>
 
-      <div class="add-word-form">
+      <!-- FORM THÊM TỪ -->
+      <div class="add-word-form" id="addWordForm">
         <div class="input-group">
           <label>Từ tiếng Hàn</label>
           <input type="text" id="wordInput" placeholder="VD: 학교" />
@@ -95,7 +115,67 @@
         <button class="primary-btn" id="btnAddWord">Lưu Từ Vựng</button>
       </div>
 
+      <!-- LƯỚI TỪ VỰNG -->
       <div class="vocab-grid" id="vocabGrid"></div>
+
+      <!-- KHU VỰC KIỂM TRA -->
+      <div class="test-screen" id="testScreen">
+        <div class="test-card">
+          <h2
+            id="testTopicName"
+            style="color: var(--primary-color); margin-bottom: 8px"
+          >
+            Kiểm tra
+          </h2>
+          <p
+            id="testProgress"
+            style="color: var(--text-muted); margin-bottom: 24px"
+          >
+            Từ 1/10
+          </p>
+
+          <div
+            id="testQuestion"
+            class="word-kr"
+            style="
+              justify-content: center;
+              margin-bottom: 4px;
+              font-size: 36px;
+              padding-right: 0;
+            "
+          >
+            학교
+          </div>
+          <div id="testWordType" class="word-type" style="margin-bottom: 24px">
+            (Danh từ)
+          </div>
+
+          <input
+            type="text"
+            id="testAnswerInput"
+            placeholder="Nhập nghĩa tiếng Việt..."
+          />
+          <p
+            id="testFeedback"
+            style="margin-bottom: 16px; font-weight: bold; min-height: 24px"
+          ></p>
+
+          <button
+            class="primary-btn"
+            id="btnSubmitAnswer"
+            style="width: 100%; margin-bottom: 12px"
+          >
+            Kiểm tra
+          </button>
+          <button
+            class="tool-btn"
+            id="btnEndTest"
+            style="width: 100%; border: none"
+          >
+            Dừng kiểm tra & Quay lại
+          </button>
+        </div>
+      </div>
     </main>
 
     <script type="module" src="/main.js"></script>

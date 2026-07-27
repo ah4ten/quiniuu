@@ -423,3 +423,30 @@ button.primary-btn {
   margin-bottom: 8px;
   text-align: center; /* Căn giữa chữ lúc nhập mật khẩu */
 }
+/* ==================== 
+   KHU VỰC KIỂM TRA 
+   ==================== */
+.test-screen {
+  display: none; /* Ẩn mặc định */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.test-card {
+  background-color: var(--card-bg);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.test-card input {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
